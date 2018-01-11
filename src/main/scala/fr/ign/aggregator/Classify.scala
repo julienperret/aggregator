@@ -144,10 +144,12 @@ object Classify extends App {
     } finally store.dispose
     println("added " + i + " features")
   }
+  val folder = "/home/mbrasebin/Bureau/Data_Fin/"
+
   val geometryFactory = new GeometryFactory
   val factory = new ShapefileDataStoreFactory
-  val parcelFile = File("parcels_measures_idf_2.shp")
-  val out = File("parcel_classes_dempster.csv")
+  val parcelFile = File(folder + "parcels_measures_idf_2.shp")
+  val out = File(folder + "parcel_classes_dempster.csv")
   println(Calendar.getInstance.getTime + " now with the real stuff")
   readAndWriteParcels(parcelFile,out)
   println(Calendar.getInstance.getTime + " done")

@@ -74,6 +74,7 @@ object ComputeMeasures extends App {
                           railwayIndex: STRtree,
                           buildingIndex: STRtree) = {
     val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
+
     var i = 0
     try {
       val reader = store.getFeatureReader
@@ -116,13 +117,16 @@ object ComputeMeasures extends App {
     } finally store.dispose
     println("added " + i + " features")
   }
-  val roadFile = File("roads_surface_elongation_idf.shp")
-  val buildingsFile = File("buildings_idf.shp")
-  val railwayFile = File("railway_surface_idf.shp")
-  val parcelFile = File("parcels_idf.shp")
+
+  val folder = "/home/mbrasebin/Bureau/Data_Fin/"
+
+  val roadFile = File(folder+"roads_surface_elongation_idf.shp")
+  val buildingsFile = File(folder+"buildings_idf.shp")
+  val railwayFile = File(folder+"railway_surface_idf.shp")
+  val parcelFile = File(folder+"parcels_idf.shp")
 
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double"
-  val out = File("parcels_measures_idf_2.shp")
+  val out = File(folder+"parcels_measures_idf_2.shp")
   println(Calendar.getInstance.getTime + " loading index")
   val roadIndex = index(roadFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")

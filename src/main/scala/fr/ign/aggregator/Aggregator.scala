@@ -12,6 +12,8 @@ import scala.collection.mutable
 import scala.util.Try
 
 /**
+  * Road agregation
+  *
   * Created by julien on 28/08/17.
   */
 object Aggregator extends App {
