@@ -18,6 +18,7 @@ resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/",
+  "IGN Snapshots" at "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/",
   "Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
 )
 
