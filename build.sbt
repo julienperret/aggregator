@@ -4,7 +4,7 @@ name := "aggregator"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.4"
 
 val monocleVersion = "1.4.0"
 
@@ -33,7 +33,7 @@ libraryDependencies ++= Seq (
   "org.geotools" % "gt-geojson" % geotoolsVersion,
   "com.vividsolutions" % "jts-core" % jtsVersion,
   "com.github.pathikrit" %% "better-files" % "2.17.1",
-  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT"
+  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT"// from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
 )
  
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)

@@ -35,23 +35,22 @@ object DataAggregator extends App {
             )
             val simpleFeature = writer.next
             simpleFeature.setAttributes(values)
-            writer.write
+            writer.write()
             i+=1
           }
         }
-      } finally reader.close
-    } finally store.dispose
+      } finally reader.close()
+    } finally store.dispose()
     println("added " + i + " features")
   }
-  val children = File("/home/julien/data/dpsg/dpsg2017-06-00426/BDTOPO/1_DONNEES_LIVRAISON_2017-06-00426").
-    collectChildren(f=>
+  val children = File("data").collectChildren(f=>
       (f.pathAsString.contains("D075")||f.pathAsString.contains("D077")||f.pathAsString.contains("D078")||
         f.pathAsString.contains("D091")||f.pathAsString.contains("D092")||f.pathAsString.contains("D093")||
-        f.pathAsString.contains("D094")||f.pathAsString.contains("D095")||
-        f.pathAsString.contains("D027")||f.pathAsString.contains("D060")||
-        f.pathAsString.contains("D002")||f.pathAsString.contains("D051")||
-        f.pathAsString.contains("D010")||f.pathAsString.contains("D089")||
-        f.pathAsString.contains("D045")||f.pathAsString.contains("D028"))
+        f.pathAsString.contains("D094")||f.pathAsString.contains("D095"))//||
+        //f.pathAsString.contains("D027")||f.pathAsString.contains("D060")||
+        //f.pathAsString.contains("D002")||f.pathAsString.contains("D051")||
+        //f.pathAsString.contains("D010")||f.pathAsString.contains("D089")||
+        //f.pathAsString.contains("D045")||f.pathAsString.contains("D028"))
         && f.name.contains("BATI_INDIFFERENCIE") && f.name.endsWith("SHP"))
   val outFile = File("buildings_laea_greater.shp")
   val specs = "geom:MultiPolygon:srid=3035,HAUTEUR:Integer"
@@ -69,7 +68,7 @@ object DataAggregator extends App {
   val transform = CRS.findMathTransform(inCRS, outCRS, true)
   for (elem <- children) readFile(elem, writer, transform)
   println("done")
-  writer.close
-  dataStore.dispose
+  writer.close()
+  dataStore.dispose()
   println("done")
 }

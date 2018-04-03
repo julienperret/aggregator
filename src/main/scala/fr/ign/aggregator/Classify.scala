@@ -1,10 +1,8 @@
 package fr.ign.aggregator
 
 import better.files.File
-import com.vividsolutions.jts.geom.{GeometryFactory, MultiPolygon}
-import org.geotools.data.{DataUtilities, FeatureWriter, Transaction}
+import com.vividsolutions.jts.geom.GeometryFactory
 import org.geotools.data.shapefile.{ShapefileDataStore, ShapefileDataStoreFactory}
-import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
 import fr.ign.cogit.evidence.configuration.Configuration
 import fr.ign.cogit.evidence.configuration.ConfigurationSet
 import fr.ign.cogit.evidence.variable.VariableFactory
@@ -56,7 +54,7 @@ object Classify extends App {
     mp1.add(buildCS, 0.0)
     mp1.add(emptyCS,ignorance)
     mp1.add(ignoranceCS, certitude-r)
-    mp1.check
+    mp1.check()
     //println("Source 1:\n" + mp1)
     // second source
     val mp2 = new MassPotential[String](variableSet)
@@ -66,7 +64,7 @@ object Classify extends App {
     mp2.add(buildCS, 0.0)
     mp2.add(emptyCS, ignorance)
     mp2.add(ignoranceCS, certitude-rr)
-    mp2.check
+    mp2.check()
     //println("Source 2:\n" + mp2)
     // third source
     val mp3 = new MassPotential[String](variableSet)
@@ -76,7 +74,7 @@ object Classify extends App {
     mp3.add(buildCS, b)
     mp3.add(emptyCS,ignorance)
     mp3.add(ignoranceCS, certitude-b)
-    mp3.check
+    mp3.check()
     //println("Source 3:\n" + mp3)
     // fourth source
     val mp4 = new MassPotential[String](variableSet)
@@ -86,7 +84,7 @@ object Classify extends App {
     mp4.add(buildCS, 0.0)
     mp4.add(emptyCS,ignorance)
     mp4.add(ignoranceCS, certitude-e)
-    mp4.check
+    mp4.check()
     // combination
     // Dempster
     def res(massPotential: MassPotential[String]) = {
@@ -125,7 +123,7 @@ object Classify extends App {
     var i = 0
     try {
       val reader = store.getFeatureReader
-      try {
+      try
         Try {
           val featureReader = Iterator.continually(reader.next).takeWhile(_ => reader.hasNext)
           featureReader.foreach { feature =>
@@ -136,12 +134,12 @@ object Classify extends App {
             val elongation = feature.getAttribute("ELONGATION").asInstanceOf[Double]
             println(id)
             val values = test(roadRatio, railwayRatio, buildingRatio, elongation)
-            output << s"""${id}, ${values.mkString(",")}"""
-            i+=1
+            output << id + ", " + values.mkString(",")
+            i += 1
           }
         }
-      } finally reader.close
-    } finally store.dispose
+      finally reader.close()
+    } finally store.dispose()
     println("added " + i + " features")
   }
   val folder = "/home/mbrasebin/Bureau/Data_Fin/"
