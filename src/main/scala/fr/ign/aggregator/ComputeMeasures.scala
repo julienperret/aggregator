@@ -138,9 +138,9 @@ object ComputeMeasures extends App {
   println(Calendar.getInstance.getTime + " loading index")
   val railIndex = index(railwayFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")
-  val buildIndex = index(buildingsFile)
+  val riverIndex = index(riversFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")
-  val riverIndex = index(riversFile)
+  val buildIndex = index(buildingsFile)
   println(Calendar.getInstance.getTime + " loading index")
   val geometryFactory = new GeometryFactory
   val factory = new ShapefileDataStoreFactory

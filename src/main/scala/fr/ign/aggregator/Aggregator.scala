@@ -23,7 +23,7 @@ object Aggregator extends App {
   val parcelsDir = File("/home/julien/data/cadastre")
   val buildings = false
   val roads = false
-  val roadsSurface = true
+  val roadsSurface = false
   val rails = false
   val rivers = false
   val parcels = false
