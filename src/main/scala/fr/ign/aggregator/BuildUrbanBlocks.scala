@@ -4,22 +4,22 @@ import java.util
 import java.util.Calendar
 
 import better.files.File
-import com.vividsolutions.jts.geom.{Geometry, PrecisionModel}
+import com.vividsolutions.jts.geom.{Geometry, GeometryFactory, PrecisionModel}
 import com.vividsolutions.jts.index.strtree.STRtree
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer
 import fr.ign.aggregator.Utils._
-import org.geotools.data.collection.SpatialIndexFeatureCollection
 import org.geotools.data.shapefile.ShapefileDataStoreFactory
 import org.geotools.data.{DataStoreFinder, DataUtilities, Transaction}
-import org.geotools.factory.CommonFactoryFinder
-import org.geotools.geometry.jts.ReferencedEnvelope
 import org.jgrapht.alg.ConnectivityInspector
 import org.jgrapht.graph._
-import org.opengis.feature.simple.SimpleFeature
 
 object BuildUrbanBlocks extends App {
+  class Edge extends DefaultEdge {
+    override def getSource = super.getSource.asInstanceOf[String]
+    override def getTarget = super.getTarget.asInstanceOf[String]
+  }
   val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
-  val graph = new DefaultDirectedGraph[String,DefaultEdge](classOf[DefaultEdge])
+  val graph = new DefaultDirectedGraph[String,Edge](classOf[Edge])
   val folder = "/home/julien/devel/aggregator"
   val out = File(folder) / "output"
   val parcels = File(folder) / "parcels_idf.shp"
@@ -31,50 +31,69 @@ object BuildUrbanBlocks extends App {
   val typeNameIndex = dataStoreIndex.getTypeNames()(0)
   val sourceIndex = dataStoreIndex.getFeatureSource(typeNameIndex)
   val fs = sourceIndex.getFeatures.features()
-  println(Calendar.getInstance.getTime + " reduce")
+  val index = new STRtree()
+  var parcelMap = scala.collection.mutable.HashMap[String, Parcel]()
+  println(Calendar.getInstance.getTime + " spatial index")
   while (fs.hasNext) {
-    val current = fs.next()
-    val geom = toPolygon(gpr.reduce(current.getDefaultGeometry.asInstanceOf[Geometry]))
-    current.setDefaultGeometry(geom)
+    val feature = fs.next()
+    val geom = toPolygon(gpr.reduce(feature.getDefaultGeometry.asInstanceOf[Geometry]))
+    val idpar = feature.getAttribute("IDPAR").toString
+    val parcel = new Parcel(geom, idpar)
+    index.insert(geom.getEnvelopeInternal, parcel)
+    parcelMap.put(idpar, parcel)
   }
-  val spatialIndexCollection = new SpatialIndexFeatureCollection(sourceIndex.getSchema)
-  println(Calendar.getInstance.getTime + " spatial index collection start")
-  spatialIndexCollection.addAll(sourceIndex.getFeatures)
+  dataStoreIndex.dispose()
   println(Calendar.getInstance.getTime + " spatial index collection built")
-  // Fast spatial Access
-  val sourceSpatial = DataUtilities.source(spatialIndexCollection)
-  println(Calendar.getInstance.getTime + " spatial index source built")
-  val geometryPropertyName = sourceSpatial.getSchema.getGeometryDescriptor.getLocalName
-  val ff = CommonFactoryFinder.getFilterFactory2
-  val crs = sourceSpatial.getSchema.getCoordinateReferenceSystem
   def process(o: Parcel) = {
     val env = o.geom.getEnvelopeInternal
     val buffer = o.geom.buffer(0.1)
     def connected(a: Parcel) = a.geom.intersects(buffer)
-    val bbox = new ReferencedEnvelope(env.getMinX, env.getMinY, env.getMaxX, env.getMaxY, crs)
-    val filter = ff.bbox(ff.property(geometryPropertyName), bbox)
-    val collection = sourceSpatial.getFeatures(filter)
-    /*filterNot(d=>processed.contains(d.id)).*/
-    val touches = collection.toArray.map(_.asInstanceOf[SimpleFeature]).map(f=>new Parcel(toPolygon(f.getDefaultGeometry),f.getAttribute("IDPAR").toString)).filter(_.id > o.id).filter(connected)
+    val collection = index.query(env)
+    val touches = collection.toArray.map(_.asInstanceOf[Parcel]).filter(_.id > o.id).filter(connected)
     if (!graph.containsVertex(o.id)) graph.addVertex(o.id)
     touches.foreach{d=>
       if (!graph.containsVertex(d.id)) graph.addVertex(d.id)
       graph.addEdge(o.id, d.id)
     }
-    //processed += o.id
   }
-  val features = spatialIndexCollection.features()
   var i: Int = 0
-  while (features.hasNext) {
-    val feature = features.next
-    val parcel = new Parcel(toPolygon(feature.getDefaultGeometry), feature.getAttribute("IDPAR").toString)
-    process(parcel)
+  for (feature <- parcelMap) {
+    process(feature._2)
     i += 1
     if (i % 10000 == 0) println(Calendar.getInstance.getTime + " " + i)
   }
-  dataStoreIndex.dispose()
   println(Calendar.getInstance.getTime + " processing done")
   val undirectedGraph = new AsUndirectedGraph(graph)
+  def writeGraph(aGraph: AsUndirectedGraph[String, Edge], aFile: File) = {
+    val specs = "geom:LineString:srid=2154,gid:Integer,id1:String,id2:String"
+    val factory = new ShapefileDataStoreFactory
+    println("creating file " + aFile)
+    aFile.parent.createDirectories()
+    val dataStore = factory.createDataStore(aFile.toJava.toURI.toURL)
+    val featureTypeName = "Object"
+    val featureType = DataUtilities.createType(featureTypeName, specs)
+    dataStore.createSchema(featureType)
+    val typeName = dataStore.getTypeNames()(0)
+    val writer = dataStore.getFeatureWriterAppend(typeName, Transaction.AUTO_COMMIT)
+    System.setProperty("org.geotools.referencing.forceXY","true")
+    println(Calendar.getInstance.getTime + " now with the real stuff")
+    var id: Int = 0
+    val geomFactory = new GeometryFactory()
+    aGraph.edgeSet().forEach{edge=>
+      val source = edge.getSource
+      val target = edge.getTarget
+      val sourceCoord = parcelMap(source).geom.getCentroid.getCoordinate
+      val targetCoord = parcelMap(target).geom.getCentroid.getCoordinate
+      val f = writer.next()
+      f.setAttributes(Array[AnyRef](geomFactory.createLineString(Array(sourceCoord, targetCoord)),id.asInstanceOf[Integer], source, target))
+      writer.write()
+      id += 1
+    }
+    println(Calendar.getInstance.getTime + " done")
+    writer.close()
+    dataStore.dispose()
+  }
+  writeGraph(undirectedGraph, out / "graph.shp")
   val connectivityInspector = new ConnectivityInspector(undirectedGraph)
   println(Calendar.getInstance.getTime + " connected sets")
   val connectedSets = connectivityInspector.connectedSets()
@@ -98,15 +117,12 @@ object BuildUrbanBlocks extends App {
     s.forEach{v=>connectedSetMap.put(v,j)}
     j += 1
   }
-  val featuresFinal = sourceSpatial.getFeatures.features()
   println(Calendar.getInstance.getTime + " write")
-  while (featuresFinal.hasNext) {
-    val ff = featuresFinal.next
-    val id = ff.getAttribute("IDPAR").toString
-    if (connectedSetMap.contains(id)) {
-      val component = connectedSetMap(id)
+  for (feature <- parcelMap) {
+    if (connectedSetMap.contains(feature._1)) {
+      val component = connectedSetMap(feature._1)
       val f = writer.next()
-      f.setAttributes(Array[AnyRef](ff.getDefaultGeometry, id, component.asInstanceOf[Integer]))
+      f.setAttributes(Array[AnyRef](feature._2.geom, feature._1, component.asInstanceOf[Integer]))
       writer.write()
     }
   }

@@ -38,6 +38,8 @@ libraryDependencies ++= Seq (
 
 libraryDependencies += "com.github.haifengl" %% "smile-scala" % "1.5.1"
 
+libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.1.0"
+
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
 enablePlugins(SbtOsgi)

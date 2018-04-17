@@ -12,28 +12,9 @@ import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
 
 import scala.util.Try
 
-import Utils.toPolygon
+import Utils._
 
 object ComputeMeasures extends App {
-  def index(aFile: File, filter: SimpleFeature=>Boolean = _=>true) = {
-    val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
-    val index = new STRtree()
-    try {
-      val reader = store.getFeatureReader
-      try {
-        Try {
-          val featureReader = Iterator.continually(reader.next).takeWhile(_ => reader.hasNext)
-          featureReader.foreach { feature =>
-            if (filter(feature)) {
-              val geom = feature.getDefaultGeometry.asInstanceOf[MultiPolygon]
-              index.insert(geom.getEnvelopeInternal, geom)
-            }
-          }
-        }
-      } finally reader.close()
-    } finally store.dispose()
-    index
-  }
   val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
   def intersection(geom: MultiPolygon, index: STRtree) = {
     val r = Try {
@@ -123,24 +104,24 @@ object ComputeMeasures extends App {
     println("added " + i + " features")
   }
 
-  val folder = "."
-
-  val roadFile = File(folder) / "roads_surface_elongation_idf.shp"
-  val buildingsFile = File(folder) / "buildings_idf.shp"
-  val railwayFile = File(folder) / "railway_surface_idf.shp"
-  val riversFile = File(folder) / "rivers_idf.shp"
-  val parcelFile = File(folder) / "parcels_idf.shp"
+  val folder = File("output")
+  folder.createDirectories()
+  val roadFile = folder / "roads_surface_elongation_idf.shp"
+  val buildingsFile = folder / "buildings_idf.shp"
+  val railwayFile = folder / "railway_surface_idf.shp"
+  val riversFile = folder / "rivers_idf.shp"
+  val parcelFile = folder / "parcels_idf.shp"
 
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double"
-  val out = File(folder) / "parcels_measures_idf.shp"
+  val out = folder / "parcels_measures_idf.shp"
   println(Calendar.getInstance.getTime + " loading index")
-  val roadIndex = index(roadFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
+  val roadIndex = indexPolygon(roadFile, f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")
-  val railIndex = index(railwayFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
+  val railIndex = indexPolygon(railwayFile, f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")
-  val riverIndex = index(riversFile,f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
+  val riverIndex = indexPolygon(riversFile)
   println(Calendar.getInstance.getTime + " loading index")
-  val buildIndex = index(buildingsFile)
+  val buildIndex = indexPolygon(buildingsFile)
   println(Calendar.getInstance.getTime + " loading index")
   val geometryFactory = new GeometryFactory
   val factory = new ShapefileDataStoreFactory

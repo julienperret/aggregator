@@ -4,36 +4,14 @@ import java.util.Calendar
 
 import better.files.File
 import com.vividsolutions.jts.geom.{Geometry, MultiPolygon, PrecisionModel}
-import com.vividsolutions.jts.index.strtree.STRtree
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer
 import org.geotools.data.{DataUtilities, Transaction}
 import org.geotools.data.shapefile.{ShapefileDataStore, ShapefileDataStoreFactory}
 
 import scala.util.Try
-import fr.ign.aggregator.Utils.toPolygon
+import fr.ign.aggregator.Utils._
 
 object Package extends App {
-  def index(aFile: File) = {
-    val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
-    val index = new STRtree()
-    var i: Int = 0
-    try {
-      val reader = store.getFeatureReader
-      try {
-        Try {
-          val featureReader = Iterator.continually(reader.next).takeWhile(_ => reader.hasNext)
-          featureReader.foreach { feature =>
-            val geom = toPolygon(feature.getDefaultGeometry)
-            index.insert(geom.getEnvelopeInternal, (geom,feature.getAttribute("IDPAR").toString))
-            i += 1
-            if (i % 10000 == 0) println(i)
-          }
-        }
-      } finally reader.close()
-    } finally store.dispose()
-    index
-  }
-
   def writeBuildingBlock(i: Int, dir: File, parcels: Seq[(Geometry, String)]) = {
     val specs = "geom:MultiPolygon:srid=2154,IDPAR:String"
     val factory = new ShapefileDataStoreFactory
@@ -62,7 +40,7 @@ object Package extends App {
   val polygons = File(folder) / "polygons.shp"
   val parcels = File(folder) / "parcels_idf.shp"
   println(Calendar.getInstance.getTime + " building index")
-  val parcelIndex = index(parcels)
+  val parcelIndex = indexPolygon(parcels, "IDPAR")
   println(Calendar.getInstance.getTime + " index done")
 
   val writeSeparate = false
