@@ -5,6 +5,8 @@ The preparation includes :
 - Block creation for calculation distribution
 - Detection of "false parcels" in order to allow the simulation only on relevant parcels. "False parcels" are parcels that appear in cadastral dataset but that are not suitable for construction. It could be part of road extension or private roads.
 
+Globally, the data needs 2 datasets : BD Topo for roads, rivers, rails and buildings descriptions and PCI Vecteur for cadastre description.
+
 Installation
 ------
 
@@ -13,13 +15,23 @@ Installation
 - [Install IntellIJ](https://www.jetbrains.com/idea/) for code editing
 
 
-Run the programs
+[Schéma des scripts du projet agregator](https://github.com/julienperret/aggregator/blob/master/doc/schema.png)
+
+Run the programs : UrbanBlock preparation
 ------
+The aim is to produce groups of parcels that are suitable for SimPLU3D simulation. They require a cadastral parcel dataset and an ID_Group value is added
+
+Two methods are proposed :
+- **Plygonizer**: it uses linear datasets (roads, rivers, rails) to regroup the parels acccording to the faces of the topological map.
+- **BuildUrbanBlocks**: it only requires parcels and regroup them according to the adjacency graph (on group by connex component).
 
 
 
+Run the programs : Classification of false parcels
+------
+The following codes allow the classification of false parcelss. A groundTruth with a buildabl attribute is required (value = 0 for non buildable parcels and 1 when buildable). The measures have to be calculated both on parcels to annote and on ground truth parcels. Thus, the different processes can be launched on tje ground truth with isGroundTruth boolean (that allows to keep the value of the attribute buildable between the different steps).
 
-
+- **Aggregator** : agregate the different sources of BD Topo and PCI cadastral parcels when several departments are processed.
 - **ComputeMeasures** : it computes values for the parcel and produces a **parcels_measures_idf_2** output file. The variable __folder__ that deteremines where files are read and exported has to be set. 4 layers are necessary (the methods to calculate non-existing attributes are present as comment in **Aggregator**) :
   - **parcel layer** (nammed parcels_idf) with MultiPolygon geometry. It requires attributes
     - _IDPAR_ : the id of the parcel
