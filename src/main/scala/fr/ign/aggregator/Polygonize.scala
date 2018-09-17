@@ -79,8 +79,10 @@ object Polygonize extends App {
   }
   val polygonizer = new Polygonizer()
   //BD Topo root folder
-  val folderData = "/home/julien/data/bdtopo2017"
-  val folder = "/home/julien/devel/aggregator"
+  val folderData = "/home/mbrasebin/Documents/Donnees/BDTopo/94"
+  val folder = "/home/mbrasebin/Documents/Donnees/IAUIDF/Classification"
+ // val folderData = "/home/julien/data/bdtopo2017"
+ // val folder = "/home/julien/devel/aggregator"
   def filterPosSol(simpleFeature: SimpleFeature) = simpleFeature.getAttribute("POS_SOL").asInstanceOf[Int] >= 0
   val childrenRoad = File(folderData).collectChildren(f =>
     (f.pathAsString.contains("D075") || f.pathAsString.contains("D077") || f.pathAsString.contains("D078") ||

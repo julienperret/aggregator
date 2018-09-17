@@ -104,12 +104,13 @@ object ComputeMeasures extends App {
     println("added " + i + " features")
   }
 
-  val folder = File("output")
+  //Aggregator folder
+  val folder = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/")
   folder.createDirectories()
-  val roadFile = folder / "roads_surface_elongation_idf.shp"
+  val roadFile = folder / "roads_surface_idf.shp"
   val buildingsFile = folder / "buildings_idf.shp"
   val railwayFile = folder / "railway_surface_idf.shp"
-  val riversFile = folder / "rivers_idf.shp"
+  val riversFile = folder / "rivers_surface_idf.shp"
   val parcelFile = folder / "parcels_idf.shp"
 
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double"

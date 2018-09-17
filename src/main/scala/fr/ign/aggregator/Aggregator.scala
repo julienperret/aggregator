@@ -191,11 +191,14 @@ object Aggregator extends App {
     }
   }
 
-
+  //BD Topo Folder
   val dataDir = File("/home/mbrasebin/Documents/Donnees/BDTopo/94")
+  //Cadastre folder
   val parcelDir = File("/home/mbrasebin/Documents/Donnees/BDParcellaire/cadastre-94-parcelles-shp")
+  //Absolute path to output directory
   val outDir = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
   outDir.createDirectories()
+  //Activate or not the generation of the different elements
   val buildings = true
   val roads = true
   val roadsSurface1 = true
