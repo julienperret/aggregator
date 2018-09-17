@@ -107,12 +107,16 @@ object ClassifySmile extends App {
     } finally store.dispose()
     println("added " + i + " features")
   }
-  val folderIn = File("/home/julien/devel/aggregator")
+//val folderIn = File("/home/julien/devel/aggregator")
+  val folderIn = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
+
   val folderOut = folderIn / "output"
 
   val geometryFactory = new GeometryFactory
   val factory = new ShapefileDataStoreFactory
-  val groundTruth = folderIn / "ground_truth.shp"
+  //val groundTruth = folderIn / "ground_truth.shp"
+  val groundTruth = folderIn / "V0_ChoisyLeRoi_iau.shp"
+   println(" Ground truth : " + groundTruth)
   println(Calendar.getInstance.getTime + " now with the real stuff with " + groundTruth)
   val learntClassifier = makeClassifier(groundTruth, GradientBoostedTrees())
   println(learntClassifier)

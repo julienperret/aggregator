@@ -105,7 +105,7 @@ object ComputeMeasures extends App {
   }
 
   //Aggregator folder
-  val folder = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/")
+  val folder = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
   folder.createDirectories()
   val roadFile = folder / "roads_surface_idf.shp"
   val buildingsFile = folder / "buildings_idf.shp"
