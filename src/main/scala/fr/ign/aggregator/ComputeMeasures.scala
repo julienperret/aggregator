@@ -54,7 +54,7 @@ object ComputeMeasures extends App {
                           roadIndex: STRtree,
                           railwayIndex: STRtree,
                           buildingIndex: STRtree,
-                          riverIndex: STRtree) = {
+                          riverIndex: STRtree, isGroundTruth: Boolean) = {
     val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
     var i = 0
     try {
@@ -78,21 +78,43 @@ object ComputeMeasures extends App {
             val width = feature.getAttribute("WIDTH").asInstanceOf[Double]
             val height = feature.getAttribute("HEIGHT").asInstanceOf[Double]
             val elongation = feature.getAttribute("ELONGATION").asInstanceOf[Double]
-            val values = Array[AnyRef](
-              default,
-              id,
-              width.asInstanceOf[AnyRef],
-              height.asInstanceOf[AnyRef],
-              elongation.asInstanceOf[AnyRef],
-              roadArea.asInstanceOf[AnyRef],
-              roadRatio.asInstanceOf[AnyRef],
-              railwayArea.asInstanceOf[AnyRef],
-              railwayRatio.asInstanceOf[AnyRef],
-              buildingArea.asInstanceOf[AnyRef],
-              buildingRatio.asInstanceOf[AnyRef],
-              riverArea.asInstanceOf[AnyRef],
-              riverRatio.asInstanceOf[AnyRef]
-            )
+            var values =Array[AnyRef]();
+            if(isGroundTruth){
+              val buildable = feature.getAttribute("buildable").toString
+              values = Array[AnyRef](
+                default,
+                id,
+                width.asInstanceOf[AnyRef],
+                height.asInstanceOf[AnyRef],
+                elongation.asInstanceOf[AnyRef],
+                roadArea.asInstanceOf[AnyRef],
+                roadRatio.asInstanceOf[AnyRef],
+                railwayArea.asInstanceOf[AnyRef],
+                railwayRatio.asInstanceOf[AnyRef],
+                buildingArea.asInstanceOf[AnyRef],
+                buildingRatio.asInstanceOf[AnyRef],
+                riverArea.asInstanceOf[AnyRef],
+                riverRatio.asInstanceOf[AnyRef],
+                buildable.asInstanceOf[AnyRef]
+              )
+            }else{
+              values = Array[AnyRef](
+                default,
+                id,
+                width.asInstanceOf[AnyRef],
+                height.asInstanceOf[AnyRef],
+                elongation.asInstanceOf[AnyRef],
+                roadArea.asInstanceOf[AnyRef],
+                roadRatio.asInstanceOf[AnyRef],
+                railwayArea.asInstanceOf[AnyRef],
+                railwayRatio.asInstanceOf[AnyRef],
+                buildingArea.asInstanceOf[AnyRef],
+                buildingRatio.asInstanceOf[AnyRef],
+                riverArea.asInstanceOf[AnyRef],
+                riverRatio.asInstanceOf[AnyRef]
+              )
+            }
+
             val simpleFeature = writer.next
             simpleFeature.setAttributes(values)
             writer.write()
@@ -112,8 +134,15 @@ object ComputeMeasures extends App {
   val railwayFile = folder / "railway_surface_idf.shp"
   val riversFile = folder / "rivers_surface_idf.shp"
   val parcelFile = folder / "parcels_idf.shp"
+  val isGroundTruth = true
 
-  val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double"
+  var specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double"
+
+  if(isGroundTruth){
+    specs = specs + ",buildable:String"
+  }
+
+
   val out = folder / "ground_truth.shp"
   println(Calendar.getInstance.getTime + " loading index")
   val roadIndex = indexPolygon(roadFile, f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
@@ -134,7 +163,7 @@ object ComputeMeasures extends App {
   val writer = dataStore.getFeatureWriterAppend(typeName, Transaction.AUTO_COMMIT)
   System.setProperty("org.geotools.referencing.forceXY","true")
   println(Calendar.getInstance.getTime + " now with the real stuff")
-  readAndWriteParcels(parcelFile,writer,roadIndex,railIndex,buildIndex,riverIndex)
+  readAndWriteParcels(parcelFile,writer,roadIndex,railIndex,buildIndex,riverIndex, isGroundTruth)
   println(Calendar.getInstance.getTime + " done")
   writer.close()
   dataStore.dispose()

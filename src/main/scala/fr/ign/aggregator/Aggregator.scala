@@ -181,11 +181,9 @@ object Aggregator extends App {
       val outParcelFile = File(outputDir+"/parcels_idf.shp")
 
 
-      var specsParcel = "";
+      var specsParcel =  "geom:MultiPolygon:srid=2154,IDPAR:String"
       if(isGroundTruth){
-         specsParcel = "geom:MultiPolygon:srid=2154,IDPAR:String,buildable:String"
-      }else{
-         specsParcel  = "geom:MultiPolygon:srid=2154,IDPAR:String"
+         specsParcel = specsParcel + ",buildable:String"
       }
       val (inCRS, outCRS) = (CRS.decode("EPSG:2154"), CRS.decode("EPSG:2154"))
       val transform = CRS.findMathTransform(inCRS, outCRS, true)
