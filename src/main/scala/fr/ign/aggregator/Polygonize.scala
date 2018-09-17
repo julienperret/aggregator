@@ -16,6 +16,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
+
+//Class that creates Topologic Map from rivers, roads and rail themes from BD Topo
 object Polygonize extends App {
   val fact = new GeometryFactory()
   def getLines(inputFeatures: Seq[Geometry]) = {
@@ -76,6 +78,7 @@ object Polygonize extends App {
     }
   }
   val polygonizer = new Polygonizer()
+  //BD Topo root folder
   val folderData = "/home/julien/data/bdtopo2017"
   val folder = "/home/julien/devel/aggregator"
   def filterPosSol(simpleFeature: SimpleFeature) = simpleFeature.getAttribute("POS_SOL").asInstanceOf[Int] >= 0

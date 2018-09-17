@@ -58,7 +58,7 @@ object Aggregator extends App {
       val childrenRoad = dataDir.collectChildren(f =>
         (f.pathAsString.contains("D077") || f.pathAsString.contains("D078") || f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
           f.pathAsString.contains("D094") || f.pathAsString.contains("D095")) && f.name.equalsIgnoreCase("ROUTE.SHP"))
-      val outRoadFile = File("roads_idf.shp")
+      val outRoadFile = File(outputDir+"/roads_idf.shp")
       val specsRoad = "geom:MultiLineString:srid=2154,ID:String,NATURE:String,LARGEUR:Double,POS_SOL:Integer"
 
       def valuesRoad(feature: SimpleFeature) = {
@@ -88,7 +88,7 @@ object Aggregator extends App {
           f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
           f.pathAsString.contains("D094") || f.pathAsString.contains("D095"))
           && f.name.equalsIgnoreCase("ROUTE.SHP"))
-      val outRoadSurfaceFile = File("roads_surface_idf.shp")
+      val outRoadSurfaceFile = File(outputDir+"/roads_surface_idf.shp")
       val specsSurfaceRoad = "geom:MultiPolygon:srid=2154,ID:String,NATURE:String,LARGEUR:Double,POS_SOL:Integer"
 
       def valuesSurfaceRoad(feature: SimpleFeature) = {
@@ -121,7 +121,7 @@ object Aggregator extends App {
           f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
           f.pathAsString.contains("D094") || f.pathAsString.contains("D095"))
           && f.name.startsWith("BATI_") && f.name.endsWith(".SHP"))
-      val outBuildingsFile = File("buildings_idf.shp")
+      val outBuildingsFile = File(outputDir+"/buildings_idf.shp")
       val specsBuildings = "geom:MultiPolygon:srid=2154"
 
       def valuesBuildings(feature: SimpleFeature) = {
@@ -138,7 +138,7 @@ object Aggregator extends App {
       val childrenRailway = dataDir.collectChildren(f =>
         (f.pathAsString.contains("D077") || f.pathAsString.contains("D078") || f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
           f.pathAsString.contains("D094") || f.pathAsString.contains("D095")) && f.name.equalsIgnoreCase("TRONCON_VOIE_FERREE.SHP"))
-      val outRailwayFile = File("railway_surface_idf.shp")
+      val outRailwayFile = File(outputDir+"/railway_surface_idf.shp")
       val specsRailway = "geom:MultiPolygon:srid=2154,ID:String,NATURE:String,LARGEUR:String,POS_SOL:Integer,NB_VOIES:Integer"
 
       def valuesRailway(feature: SimpleFeature) = {
@@ -168,7 +168,7 @@ object Aggregator extends App {
       val childrenRivers = dataDir.collectChildren(f =>
         (f.pathAsString.contains("D077") || f.pathAsString.contains("D078") || f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
           f.pathAsString.contains("D094") || f.pathAsString.contains("D095")) && f.name.startsWith("SURFACE_EAU") && f.name.endsWith(".SHP"))
-      val outRiversFile = File("rivers_surface_idf.shp")
+      val outRiversFile = File(outputDir+"/rivers_surface_idf.shp")
       val specsRivers = "geom:MultiPolygon:srid=2154"
 
       def valuesRivers(feature: SimpleFeature) = Array[AnyRef](toPolygon(feature.getDefaultGeometry))
@@ -178,9 +178,9 @@ object Aggregator extends App {
     }
     if (parcels) {
       val childrenParcels = parcelDir.collectChildren(f => f.name.endsWith("parcelles.shp"))
-      val outParcelFile = File("parcels_idf.shp")
+      val outParcelFile = File(outputDir+"/parcels_idf.shp")
       val specsParcel = "geom:MultiPolygon:srid=2154,IDPAR:String"
-      val (inCRS, outCRS) = (CRS.decode("EPSG:4326"), CRS.decode("EPSG:2154"))
+      val (inCRS, outCRS) = (CRS.decode("EPSG:2154"), CRS.decode("EPSG:2154"))
       val transform = CRS.findMathTransform(inCRS, outCRS, true)
 
       def valuesParcel(feature: SimpleFeature) = {
@@ -190,17 +190,19 @@ object Aggregator extends App {
       println("parcels done")
     }
   }
-  val dataDir = File("/home/julien/data/bdtopo2017")
-  val parcelDir = File("/home/julien/data/cadastre")
-  val outDir = File("output")
+
+
+  val dataDir = File("/home/mbrasebin/Documents/Donnees/BDTopo/94")
+  val parcelDir = File("/home/mbrasebin/Documents/Donnees/BDParcellaire/cadastre-94-parcelles-shp")
+  val outDir = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
   outDir.createDirectories()
-  val buildings = false
-  val roads = false
-  val roadsSurface1 = false
-  val roadsSurface2 = false
-  val roadsSurface3 = false
-  val rails = false
-  val rivers = false
-  val parcels = false
+  val buildings = true
+  val roads = true
+  val roadsSurface1 = true
+  val roadsSurface2 = true
+  val roadsSurface3 = true
+  val rails = true
+  val rivers = true
+  val parcels = true
   Aggregator(dataDir, parcelDir, outDir, buildings, roads, roadsSurface1, roadsSurface2, roadsSurface3, rails, rivers, parcels)
 }
