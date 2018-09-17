@@ -53,7 +53,7 @@ object Aggregator extends App {
     writer.close()
     dataStore.dispose()
   }
-  def apply(dataDir: File, parcelDir: File, outputDir: File, buildings: Boolean, roads: Boolean, roadsSurface1:Boolean, roadsSurface2:Boolean, roadsSurface3: Boolean, rails: Boolean, rivers: Boolean, parcels: Boolean) = {
+  def apply(dataDir: File, parcelDir: File, outputDir: File, buildings: Boolean, roads: Boolean, roadsSurface1:Boolean, roadsSurface2:Boolean, roadsSurface3: Boolean, rails: Boolean, rivers: Boolean, parcels: Boolean, isGroundTruth : Boolean) = {
     if (roads) {
       val childrenRoad = dataDir.collectChildren(f =>
         (f.pathAsString.contains("D077") || f.pathAsString.contains("D078") || f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
@@ -179,12 +179,26 @@ object Aggregator extends App {
     if (parcels) {
       val childrenParcels = parcelDir.collectChildren(f => f.name.endsWith("parcelles.shp"))
       val outParcelFile = File(outputDir+"/parcels_idf.shp")
-      val specsParcel = "geom:MultiPolygon:srid=2154,IDPAR:String"
+
+
+      var specsParcel = "";
+      if(isGroundTruth){
+         specsParcel = "geom:MultiPolygon:srid=2154,IDPAR:String,buildable:String"
+      }else{
+         specsParcel  = "geom:MultiPolygon:srid=2154,IDPAR:String"
+      }
       val (inCRS, outCRS) = (CRS.decode("EPSG:2154"), CRS.decode("EPSG:2154"))
       val transform = CRS.findMathTransform(inCRS, outCRS, true)
 
       def valuesParcel(feature: SimpleFeature) = {
-        Array[AnyRef](JTS.transform(toPolygon(feature.getDefaultGeometry), transform), feature.getAttribute("id").toString)
+        if(isGroundTruth){
+           Array[AnyRef](JTS.transform(toPolygon(feature.getDefaultGeometry), transform), feature.getAttribute("id").toString,  feature.getAttribute("buildable").toString)
+
+        }else{
+          Array[AnyRef](JTS.transform(toPolygon(feature.getDefaultGeometry), transform), feature.getAttribute("id").toString)
+        }
+
+
       }
       aggregate(childrenParcels, outParcelFile, specsParcel, valuesParcel)
       println("parcels done")
@@ -194,9 +208,9 @@ object Aggregator extends App {
   //BD Topo Folder
   val dataDir = File("/home/mbrasebin/Documents/Donnees/BDTopo/94")
   //Cadastre folder
-  val parcelDir = File("/home/mbrasebin/Documents/Donnees/BDParcellaire/cadastre-94-parcelles-shp")
+  val parcelDir = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/ground_truth")
   //Absolute path to output directory
-  val outDir = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
+  val outDir = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/ground_truth/out")
   outDir.createDirectories()
   //Activate or not the generation of the different elements
   val buildings = true
@@ -207,5 +221,7 @@ object Aggregator extends App {
   val rails = true
   val rivers = true
   val parcels = true
-  Aggregator(dataDir, parcelDir, outDir, buildings, roads, roadsSurface1, roadsSurface2, roadsSurface3, rails, rivers, parcels)
+  //Report buildable attribute if isGroundTruth
+  val isGroundTruth = true
+  Aggregator(dataDir, parcelDir, outDir, buildings, roads, roadsSurface1, roadsSurface2, roadsSurface3, rails, rivers, parcels, isGroundTruth)
 }

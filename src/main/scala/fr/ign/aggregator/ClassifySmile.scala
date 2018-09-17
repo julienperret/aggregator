@@ -31,10 +31,13 @@ object ClassifySmile extends App {
     val riverArea = feature.getAttribute("riverArea").asInstanceOf[Double]
     //println(riverRatio)
     val elongation = feature.getAttribute("ELONGATION").asInstanceOf[Double]
+
+
     //println(elongation)
     Array(roadRatio, roadArea, railwayRatio, railwayArea, buildingRatio, buildingArea, riverRatio, riverArea, elongation)
   }
   def makeClassifier(aFile: File, classifierType: ClassifierType): Classifier[Array[Double]] = {
+    println("File : " + aFile)
     val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
     var i = 0
     val x = mutable.ArrayBuffer[Array[Double]]()
@@ -114,8 +117,7 @@ object ClassifySmile extends App {
 
   val geometryFactory = new GeometryFactory
   val factory = new ShapefileDataStoreFactory
-  //val groundTruth = folderIn / "ground_truth.shp"
-  val groundTruth = folderIn / "V0_ChoisyLeRoi_iau.shp"
+  val groundTruth = folderIn / "ground_truth.shp"
    println(" Ground truth : " + groundTruth)
   println(Calendar.getInstance.getTime + " now with the real stuff with " + groundTruth)
   val learntClassifier = makeClassifier(groundTruth, GradientBoostedTrees())

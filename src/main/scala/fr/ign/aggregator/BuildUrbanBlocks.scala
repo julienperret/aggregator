@@ -23,7 +23,7 @@ object BuildUrbanBlocks extends App {
   val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
   val graph = new DefaultDirectedGraph[String,Edge](classOf[Edge])
 
-  val folder = "/home/mbrasebin/Documents/Donnees/IAUIDF/Classification"
+  val folder = "/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/ground_truth/out"
   //val folder = "/home/julien/devel/aggregator"
   val out = File(folder) / "output"
 

@@ -105,7 +105,7 @@ object ComputeMeasures extends App {
   }
 
   //Aggregator folder
-  val folder = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification")
+  val folder = File("/home/mbrasebin/Documents/Donnees/IAUIDF/Classification/ground_truth/out")
   folder.createDirectories()
   val roadFile = folder / "roads_surface_idf.shp"
   val buildingsFile = folder / "buildings_idf.shp"
@@ -114,7 +114,7 @@ object ComputeMeasures extends App {
   val parcelFile = folder / "parcels_idf.shp"
 
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double"
-  val out = folder / "parcels_measures_idf.shp"
+  val out = folder / "ground_truth.shp"
   println(Calendar.getInstance.getTime + " loading index")
   val roadIndex = indexPolygon(roadFile, f=>f.getAttribute("POS_SOL").asInstanceOf[Int]>=0)
   println(Calendar.getInstance.getTime + " loading index")
