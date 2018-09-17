@@ -1,6 +1,9 @@
 # Aggregator
 
-Project for the preparation of parcel data before distribution of simulation with SimPLU3D program.
+Project for the preparation of parcels data before distribution of simulation with SimPLU3D program.
+The preparation includes :
+- Block creation for calculation distribution
+- Detection of "false parcels" in order to allow the simulation only on relevant parcels. "False parcels" are parcels that appear in cadastral dataset but that are not suitable for construction. It could be part of road extension or private roads.
 
 Installation
 ------
@@ -10,12 +13,12 @@ Installation
 - [Install IntellIJ](https://www.jetbrains.com/idea/) for code editing
 
 
-
-
-
-
-Run the program
+Run the programs
 ------
+
+
+
+
 
 - **ComputeMeasures** : it computes values for the parcel and produces a **parcels_measures_idf_2** output file. The variable __folder__ that deteremines where files are read and exported has to be set. 4 layers are necessary (the methods to calculate non-existing attributes are present as comment in **Aggregator**) :
   - **parcel layer** (nammed parcels_idf) with MultiPolygon geometry. It requires attributes
