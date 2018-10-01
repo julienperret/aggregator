@@ -52,7 +52,7 @@ Ces résultats sont évalués dans la classe **CumputeMeasure** du code.
 
 ![Exemple de surfaces servant à calculer les différents ratios](https://github.com/julienperret/aggregator/blob/master/doc/CarteSurface.png)
 
-La vérité terrain annotée est [disponible sur Github](https://github.com/julienperret/aggregator/raw/master/doc/ground_truth_choisy.zip)
+La vérité terrain annotée avec les indicateurs calculés est [disponible sur Github](https://github.com/julienperret/aggregator/raw/master/doc/ground_truth_choisy.zip)
 
 
 Apprentissage d'un modèle de détection des parcelles délaissées
