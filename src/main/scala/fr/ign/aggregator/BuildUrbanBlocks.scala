@@ -35,6 +35,7 @@ object BuildUrbanBlocks extends App {
   val dataStoreIndex = DataStoreFinder.getDataStore(map)
   val typeNameIndex = dataStoreIndex.getTypeNames()(0)
   val sourceIndex = dataStoreIndex.getFeatureSource(typeNameIndex)
+
   val fs = sourceIndex.getFeatures.features()
   val index = new STRtree()
   var parcelMap = scala.collection.mutable.HashMap[String, Parcel]()
@@ -105,6 +106,9 @@ object BuildUrbanBlocks extends App {
   var j: Int = 0
   println(Calendar.getInstance.getTime + " connected sets export " + connectedSets.size())
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,idBlock:Integer"
+  for(typeAtt <- sourceIndex.getSchema.getTypes.add(2)){
+    println(typeAtt)
+  }
   val factory = new ShapefileDataStoreFactory
   val file = out / "parcels_connected.shp"
   println("creating file " + file)
