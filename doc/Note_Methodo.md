@@ -5,7 +5,7 @@ Introduction
 Dans le cadre de la collaboration entre l'IGN, l'IAUIDF et la DRIEA, une expérimentation est en cours pour simuler la constructibilité sur les agglomérations d'Île-de-France à l'échelle de la parcelle avec le code de [SimPLU3D](https://github.com/SimPLU3D/simplu3D). Le code en cours de développement se nomme [SimPLU3D-IAUIDF](https://github.com/SimPLU3D/simplu3D-IAUIDF).
 
 Parmi les parcelles modélisées, certaines (les délaissés) représentent soit des voies privées soit des extensions prévues de la voirie. Elles causent des imperfections pour la simulation à deux niveaux :
-- soit elles sont simulées elle-même, alors que dans la réalité elles ne sont pas constructibles ;
+- soit elles sont simulées elles-mêmes, alors que dans la réalité elles ne sont pas constructibles ;
 - soit elles ne permettent pas la détection d'une limite séparative comme donnant sur la voirie car cette fine parcelle se retrouve entre une autre parcelle et la vraie voirie.
 
 ![Exemple de parcelle délaissée](https://github.com/julienperret/aggregator/blob/master/doc/cas1.png)
@@ -17,7 +17,7 @@ Dans ce cadre, le COGIT a mis en place une démarche de détection automatique d
 - 3 : Apprentissage d'un modèle de détection des parcelles délaissées
 - 4 : Ré-application du modèle sur l'ensemble des parcelles.
 
-L'étape 1 est manuelle, les étapes 2 à 4 sont effectués avec le code Scala  [aggregator](https://github.com/julienperret/aggregator/).
+L'étape 1 est manuelle, les étapes 2 à 4 sont effectués avec le code Scala [aggregator](https://github.com/julienperret/aggregator/).
 
 Préparation d'une vérité terrain
 ------
@@ -48,7 +48,7 @@ Actuellement, les indicateurs suivants sont calculés :
 
 Les objets surfaciques nécessaires sont illustrées dans la carte ci dessous (parcelles en gris clair, routes en violet, surface en eau en bleau, bâtiment en noir et surface ferrée en gris foncé).
 
-Ces résultats sont évalués dans la classe **CumputeMeasure** du code.
+Ces résultats sont évalués dans la classe **ComputeMeasure** du code.
 
 ![Exemple de surfaces servant à calculer les différents ratios](https://github.com/julienperret/aggregator/blob/master/doc/CarteSurface.png)
 
