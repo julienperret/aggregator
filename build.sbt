@@ -34,8 +34,8 @@ libraryDependencies ++= Seq (
   "com.vividsolutions" % "jts-core" % jtsVersion,
   "com.github.pathikrit" %% "better-files" % "2.17.1",
   "org.apache.commons" % "commons-compress" % "1.18",
-  "org.tukaani" % "xz" % "1.8",
-  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT" from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
+  "org.tukaani" % "xz" % "1.8"
+//  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT" from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
 )
 
 libraryDependencies += "com.github.haifengl" %% "smile-scala" % "1.5.1"

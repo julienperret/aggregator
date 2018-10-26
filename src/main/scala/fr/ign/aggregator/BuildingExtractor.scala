@@ -6,23 +6,43 @@ import java.nio.file.{Files, Paths}
 import java.util.Calendar
 
 import org.apache.commons.compress.archivers.ArchiveEntry
-import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.utils.IOUtils
 
 object BuildingExtractor extends App {
+  println(s"args.length =  ${args.length}")
+  val date = args.head
+  val ftp = args(1).equalsIgnoreCase("ftp")
+  println(s"chose $date")
   def filter1(s: String) = s.contains("BATIMENT")
   val startDirString1 = "DONNEES/D0"
   val endDirString1 = "_"
-//  val (inputFile, outputDirectory, startDirString, endDirString) = ("BDTOPO/BDTOPO_2005/dpsg2017-06-00416.tar.gz", "BATI_BDTOPO_2005", startDirString1, endDirString1)
   def filter2(s: String) = s.contains("BATI_")
   val startDirString2 = "_D0"
   val endDirString2 = "-ED"
   val login = sys.env("IGN_FTP_LOGIN")
   val password = sys.env("IGN_FTP_PASSWORD")
-  val (inputFile, outputDirectory, startDirString, endDirString) = (s"ftp://$login:$password@ftp2.ign.fr/BDTOPO_2009/dpsg2017-06-00418.tar.gz", "BATI_BDTOPO_2009", startDirString2, endDirString2)
-//  val (inputFile, outputDirectory, startDirString, endDirString) = ("BDTOPO/BDTOPO_2017/dpsg2017-06-00417.tar.gz", "BATI_BDTOPO_2017", startDirString2, endDirString2)
-  def fileFilter(s:String) = filter2(s)
+  val ftpBase = s"ftp://$login:$password@ftp2.ign.fr/BDTOPO_$date"
+  val fileBase = s"BDTOPO/BDTOPO_date"
+  val base = if (ftp) ftpBase else fileBase
+  def fileFilter(s:String) = date match {
+    case "2005" => filter1(s)
+    case _ => filter2(s)
+  }
+  val (inputFile, outputDirectory, startDirString, endDirString) = date match {
+    case "2005" => (s"$base/dpsg2017-06-00416.tar.gz", "BATI_BDTOPO_2005", startDirString1, endDirString1)
+    case "2009" => (s"$base/dpsg2017-06-00418.tar.gz", "BATI_BDTOPO_2009", startDirString2, endDirString2)
+    case "2010" => (s"$base/dpsg2017-06-00419.tar.gz", "BATI_BDTOPO_2010", startDirString2, endDirString2)
+    case "2011" => (s"$base/dpsg2017-06-00420.tar.gz", "BATI_BDTOPO_2011", startDirString2, endDirString2)
+    case "2012" => (s"$base/dpsg2017-06-00421.tar.gz", "BATI_BDTOPO_2012", startDirString2, endDirString2)
+    case "2013" => (s"$base/dpsg2017-06-00422.tar.gz", "BATI_BDTOPO_2013", startDirString2, endDirString2)
+    case "2014" => (s"$base/dpsg2017-06-00423.tar.gz", "BATI_BDTOPO_2014", startDirString2, endDirString2)
+    case "2015" => (s"$base/dpsg2017-06-00424.tar.gz", "BATI_BDTOPO_2015", startDirString2, endDirString2)
+    case "2016" => (s"$base/dpsg2017-06-00425.tar.gz", "BATI_BDTOPO_2016", startDirString2, endDirString2)
+    case "2017" => (s"$base/dpsg2017-06-00417.tar.gz", "BATI_BDTOPO_2017", startDirString2, endDirString2)
+    case _ => throw new IllegalArgumentException
+  }
 
   def getInputStream(input: String) = {
     if (input.startsWith("ftp")) {
@@ -44,8 +64,8 @@ object BuildingExtractor extends App {
       var entry:ArchiveEntry = null
       var entries = 0
       var stop = false
-      while (((entry = o.getNextEntry()) != null) && !stop) if (!o.canReadEntryData(entry)) {
-        stop = true
+      while (Option(entry = o.getNextEntry).isDefined && !stop) if (!o.canReadEntryData(entry)) {
+        stop = true 
       } else {
         if (!entry.isDirectory && fileFilter(entry.getName)) {
           println(entry.getName)
