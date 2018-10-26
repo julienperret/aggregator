@@ -18,7 +18,7 @@ resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/",
-  "IGN Snapshots" at "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/",
+//  "IGN Snapshots" at "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/",
   "Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
 )
 
@@ -35,7 +35,7 @@ libraryDependencies ++= Seq (
   "com.github.pathikrit" %% "better-files" % "2.17.1",
   "org.apache.commons" % "commons-compress" % "1.18",
   "org.tukaani" % "xz" % "1.8",
-  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT"// from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
+  "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT" from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
 )
 
 libraryDependencies += "com.github.haifengl" %% "smile-scala" % "1.5.1"
