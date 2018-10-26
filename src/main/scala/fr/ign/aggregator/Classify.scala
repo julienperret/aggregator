@@ -3,14 +3,8 @@ package fr.ign.aggregator
 import better.files.File
 import com.vividsolutions.jts.geom.GeometryFactory
 import org.geotools.data.shapefile.{ShapefileDataStore, ShapefileDataStoreFactory}
-import fr.ign.cogit.evidence.configuration.Configuration
-import fr.ign.cogit.evidence.configuration.ConfigurationSet
-import fr.ign.cogit.evidence.variable.VariableFactory
-import fr.ign.cogit.evidence.variable.VariableSet
 import java.util
 import java.util.Calendar
-
-import fr.ign.cogit.evidence.massvalues.MassPotential
 
 import scala.util.Try
 

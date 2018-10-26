@@ -13,7 +13,7 @@ import org.apache.commons.compress.utils.IOUtils
 object BuildingExtractor extends App {
   println(s"args.length =  ${args.length}")
   val date = args.head
-  val ftp = args(1).equalsIgnoreCase("ftp")
+  val ftp = args.length > 1 && args(1).equalsIgnoreCase("ftp")
   println(s"chose $date")
   def filter1(s: String) = s.contains("BATIMENT")
   val startDirString1 = "DONNEES/D0"
@@ -24,7 +24,7 @@ object BuildingExtractor extends App {
   val login = sys.env("IGN_FTP_LOGIN")
   val password = sys.env("IGN_FTP_PASSWORD")
   val ftpBase = s"ftp://$login:$password@ftp2.ign.fr/BDTOPO_$date"
-  val fileBase = s"BDTOPO/BDTOPO_date"
+  val fileBase = s"BDTOPO/BDTOPO_$date"
   val base = if (ftp) ftpBase else fileBase
   def fileFilter(s:String) = date match {
     case "2005" => filter1(s)
@@ -46,9 +46,10 @@ object BuildingExtractor extends App {
 
   def getInputStream(input: String) = {
     if (input.startsWith("ftp")) {
+      println(Calendar.getInstance.getTime + " Connecting to " + inputFile)
       val url = new URL(inputFile)
       val urlConnection = url.openConnection
-      urlConnection.setConnectTimeout(1000)
+      urlConnection.setConnectTimeout(5000)
       urlConnection.getInputStream
     } else {
       Files.newInputStream(Paths.get(inputFile))
@@ -60,13 +61,11 @@ object BuildingExtractor extends App {
     val bi = new BufferedInputStream(is)
     val gzi = new GzipCompressorInputStream(bi)
     val o = new TarArchiveInputStream(gzi)
+    println(o.getRecordSize + " records")
     try {
       var entry:ArchiveEntry = null
       var entries = 0
-      var stop = false
-      while (Option(entry = o.getNextEntry).isDefined && !stop) if (!o.canReadEntryData(entry)) {
-        stop = true 
-      } else {
+      while (Option(entry = o.getNextEntry).isDefined) if (o.canReadEntryData(entry)) {
         if (!entry.isDirectory && fileFilter(entry.getName)) {
           println(entry.getName)
           val start = entry.getName.indexOf(startDirString)
