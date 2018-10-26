@@ -106,9 +106,9 @@ object BuildUrbanBlocks extends App {
   var j: Int = 0
   println(Calendar.getInstance.getTime + " connected sets export " + connectedSets.size())
   val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,idBlock:Integer"
-  for(typeAtt <- sourceIndex.getSchema.getTypes.add(2)){
-    println(typeAtt)
-  }
+//  for(typeAtt <- sourceIndex.getSchema.getTypes.add(2)){
+//    println(typeAtt)
+//  }
   val factory = new ShapefileDataStoreFactory
   val file = out / "parcels_connected.shp"
   println("creating file " + file)

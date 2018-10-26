@@ -8,7 +8,7 @@ scalaVersion := "2.12.4"
 
 val monocleVersion = "1.4.0"
 
-val geotoolsVersion = "17.2"
+val geotoolsVersion = "18.4"
 
 val jtsVersion = "1.14.0"
 
@@ -33,12 +33,15 @@ libraryDependencies ++= Seq (
   "org.geotools" % "gt-geojson" % geotoolsVersion,
   "com.vividsolutions" % "jts-core" % jtsVersion,
   "com.github.pathikrit" %% "better-files" % "2.17.1",
+  "org.apache.commons" % "commons-compress" % "1.18",
+  "org.tukaani" % "xz" % "1.8",
   "fr.ign.cogit" % "evidence4j" % "1.1-SNAPSHOT"// from "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/fr/ign/cogit/evidence4j/1.1-SNAPSHOT/evidence4j-1.1-20160229.093026-1.jar"
 )
 
 libraryDependencies += "com.github.haifengl" %% "smile-scala" % "1.5.1"
 
 libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.1.0"
+
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
