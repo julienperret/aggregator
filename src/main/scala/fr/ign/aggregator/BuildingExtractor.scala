@@ -55,40 +55,40 @@ object BuildingExtractor extends App {
       Files.newInputStream(Paths.get(inputFile))
     }
   }
+  println(Calendar.getInstance.getTime + " let's go")
+  val is = getInputStream(inputFile)
+  val bi = new BufferedInputStream(is)
+  val gzi = new GzipCompressorInputStream(bi)
+  val o = new TarArchiveInputStream(gzi)
   try {
-    println(Calendar.getInstance.getTime + " let's go")
-    val is = getInputStream(inputFile)
-    val bi = new BufferedInputStream(is)
-    val gzi = new GzipCompressorInputStream(bi)
-    val o = new TarArchiveInputStream(gzi)
-    println(o.getRecordSize + " records")
-    try {
-      var entry:ArchiveEntry = null
-      var entries = 0
-      while (Option(entry = o.getNextEntry).isDefined) if (o.canReadEntryData(entry)) {
-        if (!entry.isDirectory && fileFilter(entry.getName)) {
-          println(entry.getName)
-          val start = entry.getName.indexOf(startDirString)
-          val end = entry.getName.indexOf(endDirString)
-          val startName = entry.getName.lastIndexOf("/")
-          val dirName = entry.getName.substring(start + startDirString.length, end)
-          val dir = new File(outputDirectory, dirName)
-          dir.mkdirs()
-          val file = new File(dir, entry.getName.substring(startName))
-          val output = Files.newOutputStream(file.toPath)
-          IOUtils.copy(o, output)
-          entries = entries + 1
-        } else {
-          if (entry.isDirectory) println("\tignored:" + entry.getName)
-        }
+    var entry: ArchiveEntry = null
+    var entries = 0
+    var record = 0
+    while (Option(entry = o.getNextEntry).isDefined && o.canReadEntryData(entry)) {
+      if (!entry.isDirectory && fileFilter(entry.getName)) {
+        println(entry.getName)
+        val start = entry.getName.indexOf(startDirString)
+        val end = entry.getName.indexOf(endDirString)
+        val startName = entry.getName.lastIndexOf("/")
+        val dirName = entry.getName.substring(start + startDirString.length, end)
+        val dir = new File(outputDirectory, dirName)
+        dir.mkdirs()
+        val file = new File(dir, entry.getName.substring(startName))
+        val output = Files.newOutputStream(file.toPath)
+        IOUtils.copy(o, output)
+        entries = entries + 1
+//      } else {
+//        if (entry.isDirectory) println("\tignored:" + entry.getName)
       }
-      println(Calendar.getInstance.getTime + " I found " + entries + " files")
-    } finally {
-      if (is != null) is.close()
-      if (bi != null) bi.close()
-      if (gzi != null) gzi.close()
-      if (o != null) o.close()
+      record = record + 1
+      println(s"record $record")
     }
-    println(Calendar.getInstance.getTime + " I'm done")
+    println(Calendar.getInstance.getTime + " I found " + entries + " files")
+  } finally {
+    if (is != null) is.close()
+    if (bi != null) bi.close()
+    if (gzi != null) gzi.close()
+    if (o != null) o.close()
   }
+  println(Calendar.getInstance.getTime + " I'm done")
 }
