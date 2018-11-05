@@ -6,8 +6,8 @@ import java.nio.file.{Files, Paths}
 import java.util.Calendar
 
 import org.apache.commons.compress.archivers.ArchiveEntry
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.archivers.tar.{TarArchiveInputStream, TarArchiveOutputStream}
+import org.apache.commons.compress.compressors.gzip.{GzipCompressorInputStream, GzipCompressorOutputStream}
 import org.apache.commons.compress.utils.IOUtils
 
 object BuildingExtractor extends App {
@@ -59,12 +59,15 @@ object BuildingExtractor extends App {
   val is = getInputStream(inputFile)
   val bi = new BufferedInputStream(is)
   val gzi = new GzipCompressorInputStream(bi)
-  val o = new TarArchiveInputStream(gzi)
+  val tis = new TarArchiveInputStream(gzi)
+//  val fo = Files.newOutputStream(Paths.get(s"$outputDirectory.tar.gz"))
+//  val gzo = new GzipCompressorOutputStream(fo)
+//  val tos = new TarArchiveOutputStream(gzo)
   try {
     var entry: ArchiveEntry = null
     var entries = 0
     var record = 0
-    while (Option(entry = o.getNextEntry).isDefined && o.canReadEntryData(entry)) {
+    while (Option(entry = tis.getNextEntry).isDefined && tis.canReadEntryData(entry)) {
       if (!entry.isDirectory && fileFilter(entry.getName)) {
         println(entry.getName)
         val start = entry.getName.indexOf(startDirString)
@@ -75,7 +78,7 @@ object BuildingExtractor extends App {
         dir.mkdirs()
         val file = new File(dir, entry.getName.substring(startName))
         val output = Files.newOutputStream(file.toPath)
-        IOUtils.copy(o, output)
+        IOUtils.copy(tis, output)
         entries = entries + 1
 //      } else {
 //        if (entry.isDirectory) println("\tignored:" + entry.getName)
@@ -88,7 +91,7 @@ object BuildingExtractor extends App {
     if (is != null) is.close()
     if (bi != null) bi.close()
     if (gzi != null) gzi.close()
-    if (o != null) o.close()
+    if (tis != null) tis.close()
   }
   println(Calendar.getInstance.getTime + " I'm done")
 }
