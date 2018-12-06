@@ -16,6 +16,7 @@ object ClassifySmile extends App {
   case class DecisionTree(maxNodes: Int = 100) extends ClassifierType
   case class GradientBoostedTrees() extends ClassifierType
   case class AdaBoost() extends ClassifierType
+  case class RandomForest() extends ClassifierType
 
   def attributes(feature: SimpleFeature) = {
     val roadRatio = feature.getAttribute("roadRatio").asInstanceOf[Double]
@@ -81,6 +82,7 @@ object ClassifySmile extends App {
       case dt: DecisionTree => cart(x.toArray,y.toArray,dt.maxNodes)
       case gbt: GradientBoostedTrees => gbm(x.toArray,y.toArray)
       case ab: AdaBoost => adaboost(x.toArray,y.toArray)
+      case rf: RandomForest => randomForest(x.toArray,y.toArray)
       case _ => gbm(x.toArray,y.toArray)
     }
   }

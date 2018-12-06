@@ -6,8 +6,6 @@ version := "1.0-SNAPSHOT"
 
 scalaVersion := "2.12.4"
 
-val monocleVersion = "1.4.0"
-
 val geotoolsVersion = "18.4"
 
 val jtsVersion = "1.14.0"
@@ -41,6 +39,13 @@ libraryDependencies ++= Seq (
 libraryDependencies += "com.github.haifengl" %% "smile-scala" % "1.5.1"
 
 libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.1.0"
+
+val monocleVersion = "1.5.0" // 1.5.0-cats based on cats 1.0.x
+
+libraryDependencies ++= Seq(
+  "com.github.julien-truffaut" %%  "monocle-core"  % monocleVersion,
+  "com.github.julien-truffaut" %%  "monocle-macro" % monocleVersion
+)
 
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
