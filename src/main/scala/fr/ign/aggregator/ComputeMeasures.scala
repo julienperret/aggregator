@@ -77,9 +77,15 @@ object ComputeMeasures extends App {
               val riverArea = intersection(cleanGeom, riverIndex)
               val riverRatio = riverArea / area
               val id = feature.getAttribute("IDPAR").toString
-              val width = feature.getAttribute("WIDTH").asInstanceOf[Double]
-              val height = feature.getAttribute("HEIGHT").asInstanceOf[Double]
-              val elongation = feature.getAttribute("ELONGATION").asInstanceOf[Double]
+
+              val (minBounds, area_, angle, width_, height_) = Utils.orientedMinimumBoundingBox(cleanGeom)
+              val width = Math.max(width_, height_)
+              val height = Math.min(width_, height_)
+              val elongation = height / width
+              //MinimumDiameter.getMinimumRectangle(cleanGeom)
+//              val width = feature.getAttribute("WIDTH").asInstanceOf[Double]
+//              val height = feature.getAttribute("HEIGHT").asInstanceOf[Double]
+//              val elongation = feature.getAttribute("ELONGATION").asInstanceOf[Double]
               val values = if (isGroundTruth) {
                 val buildable = feature.getAttribute("buildable").toString
                 Array[AnyRef](
