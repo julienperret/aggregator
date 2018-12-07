@@ -4,12 +4,15 @@ import java.util.Calendar
 
 import better.files.File
 import com.vividsolutions.jts.geom.GeometryFactory
+import org.geotools.data.{DataUtilities, FeatureWriter, Transaction}
 import org.geotools.data.shapefile.{ShapefileDataStore, ShapefileDataStoreFactory}
-import org.opengis.feature.simple.SimpleFeature
+import org.opengis.feature.simple.{SimpleFeature, SimpleFeatureType}
 import smile.classification.{gbm, _}
 
 import scala.collection.mutable
 import scala.util.Try
+
+import scala.collection.JavaConversions._
 
 object Classify extends App {
   abstract class ClassifierType
@@ -81,7 +84,12 @@ object Classify extends App {
       case dt: DecisionTree => cart(x.toArray,y.toArray,dt.maxNodes)
       case gbt: GradientBoostedTrees => gbm(x.toArray,y.toArray)
       case ab: AdaBoost => adaboost(x.toArray,y.toArray)
-      case rf: RandomForest => randomForest(x.toArray,y.toArray)
+      case rf: RandomForest =>
+        val classifier = randomForest(x.toArray,y.toArray)
+        println(s"error = ${classifier.error}")
+        println("importance")
+        classifier.importance.foreach(println)
+        classifier
       case _ => gbm(x.toArray,y.toArray)
     }
   }
@@ -112,27 +120,64 @@ object Classify extends App {
     } finally store.dispose()
     println("added " + i + " features")
   }
+  def readAndWriteParcels(aFile: File, classifier: Classifier[Array[Double]], writer: FeatureWriter[SimpleFeatureType, SimpleFeature]) = {
+    val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
+    var i = 0
+    try {
+      val reader = store.getFeatureReader
+      println(reader.getFeatureType)
+      try {
+        Try {
+          val featureReader = Iterator.continually(reader.next).takeWhile(_ => reader.hasNext)
+          featureReader.foreach { feature =>
+            val predictedClass = classifier.predict(attributes(feature))
+            val simpleFeature = writer.next
+            simpleFeature.setAttributes(feature.getAttributes.toArray:+predictedClass.asInstanceOf[AnyRef])
+            writer.write()
+            i += 1
+            if (i % 10000 == 0) {
+              println(i)
+            }
+          }
+        }
+      } finally reader.close()
+    } finally store.dispose()
+    println("added " + i + " features")
+  }
 
-  def apply(inputParcelFile: File, inputGroundTruthFile: File, outputClassFile: File) {
+  def apply(inputParcelFile: File, inputGroundTruthFile: File, outputParcelFile: File) {
     val geometryFactory = new GeometryFactory
-    val factory = new ShapefileDataStoreFactory
     println(Calendar.getInstance.getTime + " now with the real stuff with " + inputGroundTruthFile)
-    val learntClassifier = makeClassifier(inputGroundTruthFile, GradientBoostedTrees())
+    val learntClassifier = makeClassifier(inputGroundTruthFile, RandomForest())
     println(learntClassifier)
-    println(Calendar.getInstance.getTime + " now with the predictions of " + inputParcelFile + " to " + outputClassFile)
-    readAndWriteParcelsAsCSV(inputParcelFile, learntClassifier, outputClassFile)
+    println(Calendar.getInstance.getTime + " now with the predictions of " + inputParcelFile + " to " + outputParcelFile)
+
+    val factory = new ShapefileDataStoreFactory
+    val dataStore = factory.createDataStore(outputParcelFile.toJava.toURI.toURL)
+    val featureTypeName = "Object"
+    val specs = "geom:MultiPolygon:srid=2154,IDPAR:String,WIDTH:Double,HEIGHT:Double,ELONGATION:Double,roadArea:Double,roadRatio:Double,railArea:Double,railRatio:Double,buildArea:Double,buildRatio:Double,riverArea:Double,riverRatio:Double,class:String"
+
+    val featureType = DataUtilities.createType(featureTypeName, specs)
+    dataStore.createSchema(featureType)
+    val typeName = dataStore.getTypeNames()(0)
+    val writer = dataStore.getFeatureWriterAppend(typeName, Transaction.AUTO_COMMIT)
+    System.setProperty("org.geotools.referencing.forceXY", "true")
+    readAndWriteParcels(inputParcelFile, learntClassifier, writer)
+    writer.close
+    dataStore.dispose
     println(Calendar.getInstance.getTime + " done")
   }
   def help(): Unit = println(
     """
-      |Usage : Classify inputParcelFile inputGroundTruthFile outputClassFile
+      |Usage : Classify inputParcelFile inputGroundTruthFile outputParcelFile
       |""".stripMargin)
 
   if (args.length < 3) { help(); sys.exit(1) }
 
   val inputParcelFile = File(args.head)
   val inputGroundTruthFile = File(args(1))
-  val outputClassFile = File(args(2))
-  outputClassFile.parent.createDirectories()
-  Classify(inputParcelFile, inputGroundTruthFile, outputClassFile)
+  val outputParcelFile = File(args(2))
+  outputParcelFile.parent.createDirectories()
+
+  Classify(inputParcelFile, inputGroundTruthFile, outputParcelFile)
 }

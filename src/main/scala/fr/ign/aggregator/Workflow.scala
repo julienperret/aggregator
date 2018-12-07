@@ -36,4 +36,5 @@ object Workflow extends App {
   //3: Classify = classify parcels using ground truth
   // input: parcel file + ground truth file + output file + classifier type
   // output: classified parcel file + ( error + importance )?
+//Classify(inputParcelFile, inputGroundTruthFile, outputParcelFile)
 }
