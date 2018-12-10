@@ -4,7 +4,9 @@ name := "aggregator"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.6"
+
+maintainer := "julien.perret@gmail.com"
 
 val geotoolsVersion = "18.4"
 
@@ -58,8 +60,15 @@ OsgiKeys.exportPackage := Seq("fr.ign.aggregator.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("!scala.*","**")
+OsgiKeys.privatePackage := Seq("""
+                                 |!scala.*,!java.*,META-INF.*;-split-package:=merge-first,
+                                 |*;-split-package:=merge-first
+                                 |""".stripMargin)
 
-OsgiKeys.embeddedJars := (Keys.externalDependencyClasspath in Compile).value map (_.data) filter (_.name.startsWith("gt-"))
+//OsgiKeys.embeddedJars := (Keys.externalDependencyClasspath in Compile).value map (_.data) filter (_.name.startsWith("gt-"))
 
 OsgiKeys.requireCapability := ""
+
+enablePlugins(JavaAppPackaging)
+
+mainClass in Compile := Some("fr.ign.aggregator.Workflow")

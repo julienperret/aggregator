@@ -1,7 +1,7 @@
 package fr.ign.aggregator
 
 import better.files.File
-import fr.ign.aggregator.Aggregator.{aggregate, args}
+import fr.ign.aggregator.ShapefileAggregator.{aggregate, args}
 import fr.ign.aggregator.Utils.toPolygon
 import org.geotools.geometry.jts.JTS
 import org.geotools.referencing.CRS

@@ -146,6 +146,7 @@ object Classify extends App {
   }
 
   def apply(inputParcelFile: File, inputGroundTruthFile: File, outputParcelFile: File) {
+    outputParcelFile.parent.createDirectories
     val geometryFactory = new GeometryFactory
     println(Calendar.getInstance.getTime + " now with the real stuff with " + inputGroundTruthFile)
     val learntClassifier = makeClassifier(inputGroundTruthFile, RandomForest())

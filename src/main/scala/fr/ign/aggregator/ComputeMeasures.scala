@@ -15,7 +15,8 @@ import Utils._
 
 object ComputeMeasures extends App {
 
-  def apply(inputDir: File, inputParcelFile: File, outputParcelFile: File, isGroundTruth: Boolean, scale: Int) {
+  def apply(inputDir: File, inputParcelFile: File, outputParcelFile: File, isGroundTruth: Boolean, scale: Int = 1000) {
+    outputParcelFile.parent.createDirectories
     val gpr = new GeometryPrecisionReducer(new PrecisionModel(scale))
 
     def intersection(geom: MultiPolygon, index: STRtree) = {

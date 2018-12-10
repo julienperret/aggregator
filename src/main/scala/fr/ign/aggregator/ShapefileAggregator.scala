@@ -24,7 +24,7 @@ import scala.concurrent.JavaConversions._
   *
   * Created by julien on 28/08/17.
   */
-object Aggregator extends App {
+object ShapefileAggregator extends App {
   def readFile(aFile: File, writer:FeatureWriter[SimpleFeatureType, SimpleFeature], values: SimpleFeature=>Array[AnyRef], filter: Array[AnyRef]=>Boolean) = {
     println("Read: " + aFile)
     val store = new ShapefileDataStore(aFile.toJava.toURI.toURL)
@@ -48,6 +48,7 @@ object Aggregator extends App {
     println("added " + i + " features")
   }
   def aggregate(files:Files, out:File, specs:String, values: SimpleFeature=>Array[AnyRef], filter: Array[AnyRef]=>Boolean = _=> true) = {
+    out.parent.createDirectories
     val factory = new ShapefileDataStoreFactory
     val dataStore = factory.createDataStore(out.toJava.toURI.toURL)
     val featureTypeName = "Object"
@@ -60,6 +61,7 @@ object Aggregator extends App {
     dataStore.dispose()
   }
   def apply(dataDir: File, /*parcelDir: File, */outputDir: File, parameters: Parameters/*buildings: Boolean, roads: Boolean, roadsSurface1:Boolean, roadsSurface2:Boolean, roadsSurface3: Boolean, rails: Boolean, rivers: Boolean*//*, parcels: Boolean, isGroundTruth : Boolean*/) = {
+    outputDir.createDirectories
     if (parameters.roads) {
       val childrenRoad = dataDir.collectChildren(f =>
         (f.pathAsString.contains("D077") || f.pathAsString.contains("D078") || f.pathAsString.contains("D091") || f.pathAsString.contains("D092") || f.pathAsString.contains("D093") ||
@@ -265,5 +267,5 @@ object Aggregator extends App {
   }
   println(parameters)
 
-  Aggregator(dataDir, /*parcelDir, */outDir, parameters/*buildings, roads, roadsSurface1, roadsSurface2, roadsSurface3, rails, rivers*//*, parcels, isGroundTruth*/)
+  ShapefileAggregator(dataDir, /*parcelDir, */outDir, parameters/*buildings, roads, roadsSurface1, roadsSurface2, roadsSurface3, rails, rivers*//*, parcels, isGroundTruth*/)
 }
